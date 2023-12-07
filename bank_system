@@ -1,0 +1,94 @@
+import codecs
+import csv
+# Класс "Клиент банка"
+class Customer:
+  def __init__(self, id, name):
+    self.id = id
+    self.name = name
+
+# Класс "Счет клиента в банке"
+class Account:
+  def __init__(self, id, open_date, customer, money_amount, currency, reward_programs):
+    self.id = id
+    self.open_date = open_date
+    self.customer = customer
+    self.money_amount = money_amount
+    self.currency = currency
+    self.reward_programs = reward_programs
+
+# Класс "Бонусная программа"
+class Reward_Program:
+  def __init__(self, id, name, code, cashback_categories):
+     self.id = id
+     self.name = name
+     self.code = code
+     self.cashback_categories = cashback_categories # Список объектов "категория кэшбэка"
+
+# Класс "Категория кэшбэка"
+class Cashback_category:
+  def __init__(self, id, name, code, value):
+    self.id = id
+    self.name = name
+    self.code = code
+    self.value = value
+
+# Список объектов класса "Клиент"
+customers = []
+
+# Список объектов класса "Счета клиентов"
+accounts = []
+
+# вывод всех клиентов
+def display_all_customers():
+  for customer in customers:
+    print("Идентификатор клиента: " + str(customer.id) + " ФИО: " + customer.name)
+
+def display_account(id):
+  for account in accounts:
+    if account.id == id:
+      print("№ счета: " + account.id +
+            ", дата открытия: " + account.open_date +
+            ", клиент: " + account.customer.name +
+            ", сумма на счете: " + str(account.money_amount) +
+            ", валюта: " + account.currency)
+
+# Импорт данных из файлов
+def import_customer_data():
+  customer_filename = "customer.csv"
+  file_encoding = "utf-8"
+  csv_dialect = "excel"
+  with codecs.open(customer_filename, "r", file_encoding) as customer_file:
+    file_reader = csv.reader(customer_file, csv_dialect)
+    for row in file_reader:
+      # работа с последовательностью данных, извлеченной из файла
+      customers.append(Customer(row[0], row[1]))
+    print("Данные из файла " + customer_filename + " успешно загружены")
+
+def import_account_data():
+  account_filename = "account.csv"
+  file_encoding = "utf-8"
+  csv_dialect = "excel"
+  with codecs.open(account_filename, "r", file_encoding) as account_file:
+    file_reader = csv.reader(account_file, csv_dialect)
+    for row in file_reader:
+      customer_id = row[2]
+      for customer in customers:
+        if (customer.id == customer_id):
+          accounts.append(Account(row[0],row[1],customer,row[3],row[4]))
+    print("Данные из файла " + account_filename + " успешно загружены")
+
+def display_account_by_currency(currency):
+  for account in accounts:
+    if (account.currency == currency):
+      display_account(account.id)
+
+
+# вызовы функций
+import_customer_data()
+import_account_data()
+display_all_customers()
+
+while True:
+  currency = input("Введите валюту для отображения счетов")
+  display_account_by_currency(currency.strip())
+
