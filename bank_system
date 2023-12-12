@@ -82,10 +82,23 @@ class DB_Utils:
         id INTEGER PRIMARY KEY,
         name TEXT NOT NULL,
         code TEXT,
-        value INTEGER)
+        value INTEGER,
+        description TEXT)
     ''')
     self.connection.commit()
     print("Таблица Cashback_categories успешно создана")
+
+  def cashback_categories_table_insert(self):
+    cursor = self.connection.cursor()
+    cursor.execute('INSERT INTO Cashback_categories (id, name, code, value) VALUES (?, ?, ?, ?)', (1,'Все покупки','ALL',1,'Кэшбэк на все покупки вне категорий'))
+    cursor.execute('INSERT INTO Cashback_categories (id, name, code, value) VALUES (?, ?, ?, ?)', (2,'Животные','PET',5,'Покупка зоотоваров и оплата услуг в вет.клиниках'))
+    cursor.execute('INSERT INTO Cashback_categories (id, name, code, value) VALUES (?, ?, ?, ?)', (3,'Топливо','FUEL',3,'Оплата топлива на заправках'))
+    cursor.execute('INSERT INTO Cashback_categories (id, name, code, value) VALUES (?, ?, ?, ?)', (4,'Спорттовары','SPORT',10,'Покупка в магазинах спорттоваров'))
+    cursor.execute('INSERT INTO Cashback_categories (id, name, code, value) VALUES (?, ?, ?, ?)', (5,'Аптеки','DRUGS',10,'Любые покупки в аптеках'))
+    cursor.execute('INSERT INTO Cashback_categories (id, name, code, value) VALUES (?, ?, ?, ?)', (6,'Фастфуд','FASTFOOD',5,'Покупка еды и напитков в кафе и ресторанах быстрого обслуживания'))
+    cursor.execute('INSERT INTO Cashback_categories (id, name, code, value) VALUES (?, ?, ?, ?)', (7,'Развлечения','FUN',5,'Театры музеи выставки концерты и мастерклассы'))
+    self.connection.commit()
+    print("Таблица Cashback_categories успешно заполнена данными")
 
 # Класс "Клиент банка"
 class Customer:
@@ -185,9 +198,11 @@ db_utils.accounts_table_create()
 db_utils.cashback_categories_table_create()
 db_utils.reward_programs_table_create()
 # db_utils.customers_table_insert()
+db_utils.cashback_categories_table_insert()
 customers_from_db = db_utils.customers_table_select()
 for customer in customers_from_db:
   print(customer)
 db_utils.disconnect()
+
 
 
