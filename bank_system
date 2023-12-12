@@ -1,5 +1,92 @@
+import sqlite3 # импорт библиотеки для работы с базой данных SQLite
+from sqlite3.dbapi2 import connect
 import codecs
 import csv
+
+# Класс для работы с базой данных
+class DB_Utils:
+  def __init__(self): # конструктор класса
+    self.db_filename = "bank.db"
+
+  def connect(self): # подключение к БД
+    self.connection = sqlite3.connect(self.db_filename)
+    print("Соединение с базой данных установлено")
+
+  def disconnect(self): # отключение от БД
+    self.connection.close()
+    print("Соединение с базой данных разорвано")
+
+  def customers_table_create(self):
+    cursor = self.connection.cursor()
+    cursor.execute('''
+      CREATE TABLE IF NOT EXISTS Customers (
+        id INTEGER PRIMARY KEY,
+        name TEXT NOT NULL)
+    ''')
+    self.connection.commit()
+    print("Таблица Customers успешно создана")
+
+  # Вставить данные в таблицу клиентов банка
+  def customers_table_insert(self):
+    cursor = self.connection.cursor()
+    cursor.execute('INSERT INTO Customers (id, name) VALUES (?, ?)', (1,'Lewie'))
+    cursor.execute('INSERT INTO Customers (id, name) VALUES (?, ?)', (2,'Merrick'))
+    cursor.execute('INSERT INTO Customers (id, name) VALUES (?, ?)', (3,'Arnaldo'))
+    cursor.execute('INSERT INTO Customers (id, name) VALUES (?, ?)', (4,'Karrah'))
+    cursor.execute('INSERT INTO Customers (id, name) VALUES (?, ?)', (5,'Morty'))
+    cursor.execute('INSERT INTO Customers (id, name) VALUES (?, ?)', (6,'Rick'))
+    cursor.execute('INSERT INTO Customers (id, name) VALUES (?, ?)', (7,'Amelia'))
+    cursor.execute('INSERT INTO Customers (id, name) VALUES (?, ?)', (8,'Marla'))
+    cursor.execute('INSERT INTO Customers (id, name) VALUES (?, ?)', (9,'Kelley'))
+    cursor.execute('INSERT INTO Customers (id, name) VALUES (?, ?)', (10,'Lyon'))
+    self.connection.commit()
+    print("Таблица Customers успешно заполнена данными")
+
+  # Запросить всех клиентов банка из БД
+  def customers_table_select(self):
+    cursor = self.connection.cursor()
+    cursor.execute('SELECT * FROM Customers')
+    customers = cursor.fetchall()
+    return customers
+
+  def accounts_table_create(self):
+    cursor = self.connection.cursor()
+    cursor.execute('''
+      CREATE TABLE IF NOT EXISTS Accounts (
+        id INTEGER PRIMARY KEY,
+        open_date TEXT NOT NULL,
+        customer_id INTEGER,
+        money_amount REAL,
+        currency TEXT,
+        reward_program_id INTEGER)
+    ''')
+    self.connection.commit()
+    print("Таблица Accounts успешно создана")
+
+  def reward_programs_table_create(self):
+    cursor = self.connection.cursor()
+    cursor.execute('''
+      CREATE TABLE IF NOT EXISTS Reward_programs (
+        id INTEGER PRIMARY KEY,
+        name TEXT NOT NULL,
+        code TEXT,
+        cashback_category_id INTEGER)
+    ''')
+    self.connection.commit()
+    print("Таблица Reward_programs успешно создана")
+
+  def cashback_categories_table_create(self):
+    cursor = self.connection.cursor()
+    cursor.execute('''
+      CREATE TABLE IF NOT EXISTS Cashback_categories (
+        id INTEGER PRIMARY KEY,
+        name TEXT NOT NULL,
+        code TEXT,
+        value INTEGER)
+    ''')
+    self.connection.commit()
+    print("Таблица Cashback_categories успешно создана")
+
 # Класс "Клиент банка"
 class Customer:
   def __init__(self, id, name):
@@ -8,21 +95,21 @@ class Customer:
 
 # Класс "Счет клиента в банке"
 class Account:
-  def __init__(self, id, open_date, customer, money_amount, currency, reward_programs):
+  def __init__(self, id, open_date, customer, money_amount, currency, reward_program):
     self.id = id
     self.open_date = open_date
     self.customer = customer
     self.money_amount = money_amount
     self.currency = currency
-    self.reward_programs = reward_programs
+    self.reward_program = reward_program # Ссылка на объект "бонусная программа"
 
 # Класс "Бонусная программа"
 class Reward_Program:
-  def __init__(self, id, name, code, cashback_categories):
+  def __init__(self, id, name, code, cashback_category):
      self.id = id
      self.name = name
      self.code = code
-     self.cashback_categories = cashback_categories # Список объектов "категория кэшбэка"
+     self.cashback_category = cashback_category # Ссылка на объект "категория кэшбэка"
 
 # Класс "Категория кэшбэка"
 class Cashback_category:
@@ -84,11 +171,23 @@ def display_account_by_currency(currency):
 
 
 # вызовы функций
-import_customer_data()
-import_account_data()
-display_all_customers()
+# import_customer_data()
+# import_account_data()
+# display_all_customers()
+# while True:
+# currency = input("Введите валюту для отображения счетов")
+# display_account_by_currency(currency.strip())
 
-while True:
-  currency = input("Введите валюту для отображения счетов")
-  display_account_by_currency(currency.strip())
+db_utils = DB_Utils()
+db_utils.connect()
+db_utils.customers_table_create()
+db_utils.accounts_table_create()
+db_utils.cashback_categories_table_create()
+db_utils.reward_programs_table_create()
+# db_utils.customers_table_insert()
+customers_from_db = db_utils.customers_table_select()
+for customer in customers_from_db:
+  print(customer)
+db_utils.disconnect()
+
 
