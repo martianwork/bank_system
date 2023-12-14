@@ -3,6 +3,51 @@ from sqlite3.dbapi2 import connect
 import codecs
 import csv
 
+# Класс "Клиент банка"
+class Customer:
+  def __init__(self, id, name):
+    self.id = id
+    self.name = name
+
+# Класс "Счет клиента в банке"
+class Account:
+  def __init__(self, id, open_date, customer, money_amount, currency, reward_program):
+    self.id = id
+    self.open_date = open_date
+    self.customer = customer
+    self.money_amount = money_amount
+    self.currency = currency
+    self.reward_program = reward_program # Ссылка на объект "бонусная программа"
+
+# Класс "Бонусная программа"
+class Reward_Program:
+  def __init__(self, id, name, code, cashback_category):
+     self.id = id
+     self.name = name
+     self.code = code
+     self.cashback_category = cashback_category # Ссылка на объект "категория кэшбэка"
+
+# Класс "Категория кэшбэка"
+class Cashback_category:
+  def __init__(self, id, name, code, value, description):
+    self.id = id
+    self.name = name
+    self.code = code
+    self.value = value
+    self.description = description
+
+# Список объектов класса "Клиент"
+customers = []
+
+# Список объектов класса "Счета клиентов"
+accounts = []
+
+# Список объектов класса "Категория кэшбэка"
+сashback_categories = []
+
+# Список объектов класс "Бонусная программа"
+reward_programs = []
+
 # Класс для работы с базой данных
 class DB_Utils:
   def __init__(self): # конструктор класса
@@ -16,6 +61,7 @@ class DB_Utils:
     self.connection.close()
     print("Соединение с базой данных разорвано")
 
+  # Создать таблицу "Клиенты банка"
   def customers_table_create(self):
     cursor = self.connection.cursor()
     cursor.execute('''
@@ -46,9 +92,11 @@ class DB_Utils:
   def customers_table_select(self):
     cursor = self.connection.cursor()
     cursor.execute('SELECT * FROM Customers')
-    customers = cursor.fetchall()
-    return customers
-
+    customers_rows = cursor.fetchall()
+    for row in customers_rows:
+      customers.append(Customer(row[0], row[1]))
+      
+  # Создать таблицу "Счта клиентов"
   def accounts_table_create(self):
     cursor = self.connection.cursor()
     cursor.execute('''
@@ -66,18 +114,26 @@ class DB_Utils:
   # Заполнение таблицы "Счета клиентов" данными
   def accounts_table_insert(self):
     cursor = self.connection.cursor()
-    cursor.execute('INSERT INTO Accounts (id, open_date, customer_id, money_amount, currency, reward_program_id) VALUES (?, ?, ?, ?, ?, ?)', (1,'21.04.2020',1,1000))
-    cursor.execute('INSERT INTO Accounts (id, open_date, customer_id, money_amount, currency, reward_program_id) VALUES (?, ?, ?, ?, ?, ?)', (2,'29.10.2021',2,20000))
-    cursor.execute('INSERT INTO Accounts (id, open_date, customer_id, money_amount, currency, reward_program_id) VALUES (?, ?, ?, ?, ?, ?)', (3,'11.05.2023',3,3000))
-    cursor.execute('INSERT INTO Accounts (id, open_date, customer_id, money_amount, currency, reward_program_id) VALUES (?, ?, ?, ?, ?, ?)', (4,'30.01.2019',4))
-    cursor.execute('INSERT INTO Accounts (id, open_date, customer_id, money_amount, currency, reward_program_id) VALUES (?, ?, ?, ?, ?, ?)', (5,'14.07.2018',5))
-    cursor.execute('INSERT INTO Accounts (id, open_date, customer_id, money_amount, currency, reward_program_id) VALUES (?, ?, ?, ?, ?, ?)', (6,'19.09.2017',6))
-    cursor.execute('INSERT INTO Accounts (id, open_date, customer_id, money_amount, currency, reward_program_id) VALUES (?, ?, ?, ?, ?, ?)', (7,'09.02.2017',7))
-    cursor.execute('INSERT INTO Accounts (id, open_date, customer_id, money_amount, currency, reward_program_id) VALUES (?, ?, ?, ?, ?, ?)', (8,'17.12.2016',8))
-    cursor.execute('INSERT INTO Accounts (id, open_date, customer_id, money_amount, currency, reward_program_id) VALUES (?, ?, ?, ?, ?, ?)', (9,'22.11.2013',9))
-    cursor.execute('INSERT INTO Accounts (id, open_date, customer_id, money_amount, currency, reward_program_id) VALUES (?, ?, ?, ?, ?, ?)', (10,'03.09.2010',10))
+    cursor.execute('INSERT INTO Accounts (id, open_date, customer_id, money_amount, currency, reward_program_id) VALUES (?, ?, ?, ?, ?, ?)', (1,'21.04.2020',1,1000,'RUB',0))
+    cursor.execute('INSERT INTO Accounts (id, open_date, customer_id, money_amount, currency, reward_program_id) VALUES (?, ?, ?, ?, ?, ?)', (2,'29.10.2021',2,20000,'EUR',1))
+    cursor.execute('INSERT INTO Accounts (id, open_date, customer_id, money_amount, currency, reward_program_id) VALUES (?, ?, ?, ?, ?, ?)', (3,'11.05.2023',3,3000,'RUB',1))
+    cursor.execute('INSERT INTO Accounts (id, open_date, customer_id, money_amount, currency, reward_program_id) VALUES (?, ?, ?, ?, ?, ?)', (4,'30.01.2019',4,100000,'USD',2))
+    cursor.execute('INSERT INTO Accounts (id, open_date, customer_id, money_amount, currency, reward_program_id) VALUES (?, ?, ?, ?, ?, ?)', (5,'14.07.2018',5,200000,'RUB',3))
+    cursor.execute('INSERT INTO Accounts (id, open_date, customer_id, money_amount, currency, reward_program_id) VALUES (?, ?, ?, ?, ?, ?)', (6,'19.09.2017',6,5000,'USD',5))
+    cursor.execute('INSERT INTO Accounts (id, open_date, customer_id, money_amount, currency, reward_program_id) VALUES (?, ?, ?, ?, ?, ?)', (7,'09.02.2017',7,1500,'RUB',0))
+    cursor.execute('INSERT INTO Accounts (id, open_date, customer_id, money_amount, currency, reward_program_id) VALUES (?, ?, ?, ?, ?, ?)', (8,'17.12.2016',8,2000,'RUB',4))
+    cursor.execute('INSERT INTO Accounts (id, open_date, customer_id, money_amount, currency, reward_program_id) VALUES (?, ?, ?, ?, ?, ?)', (9,'22.11.2013',9,4500,'RUB',6))
+    cursor.execute('INSERT INTO Accounts (id, open_date, customer_id, money_amount, currency, reward_program_id) VALUES (?, ?, ?, ?, ?, ?)', (10,'03.09.2010',10,6000,'RUB',1))
+    self.connection.commit()
+    print("Таблица Accounts успешно заполнена данными")
 
-
+  # Запросить все счета клиентов из БД
+  def accounts_table_select(self):
+    cursor = self.connection.cursor()
+    cursor.execute('SELECT * FROM Accounts')
+    accounts = cursor.fetchall()
+    return accounts
+  
   # Создание таблицы для бонусных программ
   def reward_programs_table_create(self):
     cursor = self.connection.cursor()
@@ -94,6 +150,7 @@ class DB_Utils:
   # Вставка данных о бонусных программах для клиентов
   def reward_programs_table_insert(self):
     cursor = self.connection.cursor()
+    cursor.execute('INSERT INTO Reward_programs (id, name, code, cashback_category_id) VALUES (?, ?, ?, ?)', (0,'Нет бонусной программы','EMPTY',0))
     cursor.execute('INSERT INTO Reward_programs (id, name, code, cashback_category_id) VALUES (?, ?, ?, ?)', (1,'Бонусы для автолюбителя','RA-TA-TA',3))
     cursor.execute('INSERT INTO Reward_programs (id, name, code, cashback_category_id) VALUES (?, ?, ?, ?)', (2,'Подарок на Новый Год!','SANTA',7))
     cursor.execute('INSERT INTO Reward_programs (id, name, code, cashback_category_id) VALUES (?, ?, ?, ?)', (3,'Подарок на день рождения!','PET_OWNER',2))
@@ -105,9 +162,14 @@ class DB_Utils:
   def reward_programs_table_select(self):
     cursor = self.connection.cursor()
     cursor.execute('SELECT * FROM Reward_programs')
-    reward_programs = cursor.fetchall()
-    return reward_programs
+    reward_programs_rows = cursor.fetchall()
+    for row in reward_programs_rows:
+      for cashback_category in сashback_categories:
+        if cashback_category.id == row[3]:
+          reward_programs.append(Reward_Program(row[0],row[1],row[2],cashback_category))
+          break
 
+  # Создать таблицу "Категории кэшбэка"
   def cashback_categories_table_create(self):
     cursor = self.connection.cursor()
     cursor.execute('''
@@ -121,9 +183,10 @@ class DB_Utils:
     self.connection.commit()
     print("Таблица Cashback_categories успешно создана")
 
-  # заполнение таблицы с категориями кэшбэка
+  # Заполнение таблицы с категориями кэшбэка
   def cashback_categories_table_insert(self):
     cursor = self.connection.cursor()
+    cursor.execute('INSERT INTO Cashback_categories (id, name, code, value, description) VALUES (?, ?, ?, ?, ?)', (0,'Нет кэшбэка','EMPTY',0,'Кэшбэк отключен'))
     cursor.execute('INSERT INTO Cashback_categories (id, name, code, value, description) VALUES (?, ?, ?, ?, ?)', (1,'Все покупки','ALL',1,'Кэшбэк на все покупки вне категорий'))
     cursor.execute('INSERT INTO Cashback_categories (id, name, code, value, description) VALUES (?, ?, ?, ?, ?)', (2,'Животные','PET',5,'Покупка зоотоваров и оплата услуг в вет.клиниках'))
     cursor.execute('INSERT INTO Cashback_categories (id, name, code, value, description) VALUES (?, ?, ?, ?, ?)', (3,'Топливо','FUEL',3,'Оплата топлива на заправках'))
@@ -134,55 +197,37 @@ class DB_Utils:
     self.connection.commit()
     print("Таблица Cashback_categories успешно заполнена данными")
 
-  # Запросить данные о категориях кэшбэка банка из БД
+  # Запросить данные о категориях кэшбэка из БД
   def cashback_categories_table_select(self):
     cursor = self.connection.cursor()
     cursor.execute('SELECT * FROM Cashback_categories')
-    сashback_categories = cursor.fetchall()
-    return сashback_categories
-
-# Класс "Клиент банка"
-class Customer:
-  def __init__(self, id, name):
-    self.id = id
-    self.name = name
-
-# Класс "Счет клиента в банке"
-class Account:
-  def __init__(self, id, open_date, customer, money_amount, currency, reward_program):
-    self.id = id
-    self.open_date = open_date
-    self.customer = customer
-    self.money_amount = money_amount
-    self.currency = currency
-    self.reward_program = reward_program # Ссылка на объект "бонусная программа"
-
-# Класс "Бонусная программа"
-class Reward_Program:
-  def __init__(self, id, name, code, cashback_category):
-     self.id = id
-     self.name = name
-     self.code = code
-     self.cashback_category = cashback_category # Ссылка на объект "категория кэшбэка"
-
-# Класс "Категория кэшбэка"
-class Cashback_category:
-  def __init__(self, id, name, code, value):
-    self.id = id
-    self.name = name
-    self.code = code
-    self.value = value
-
-# Список объектов класса "Клиент"
-customers = []
-
-# Список объектов класса "Счета клиентов"
-accounts = []
+    сashback_categories_rows = cursor.fetchall()
+    for row in сashback_categories_rows:
+      сashback_categories.append(Cashback_category(row[0], row[1], row[2], float(row[3]), row[4]))
 
 # вывод всех клиентов
 def display_all_customers():
   for customer in customers:
-    print("Идентификатор клиента: " + str(customer.id) + " ФИО: " + customer.name)
+    print("ID клиента: " + str(customer.id) + " ФИО: " + customer.name)
+
+# вывод всех категорий кэшбэка
+def display_all_сashback_categories():
+  for category in сashback_categories:
+    print(
+        "ID категории: " + str(category.id) + 
+        ", Название: " + category.name +
+        ", Код: " + category.code + 
+        ", % кэшбэка: " + str(category.value) +
+        ", Описание: " + category.description)
+
+# вывод всех бонусных программ
+def display_all_reward_programs():
+  for reward_program in reward_programs:
+    print(
+        "ID бонусной программы: " + str(reward_program.id) + 
+        ", Название: " + reward_program.name +
+        ", Код: " + reward_program.code + 
+        ", Категория кэшбэка: " +  reward_program.cashback_category.code)
 
 def display_account(id):
   for account in accounts:
@@ -245,19 +290,24 @@ db_utils.reward_programs_table_create()
 db_utils.customers_table_insert()
 db_utils.cashback_categories_table_insert()
 db_utils.reward_programs_table_insert()
+db_utils.accounts_table_insert()
 
 # Вывод данных на экран
 print("------------Данные о клиентах банка------------")
-for customer in (db_utils.customers_table_select()):
-  print(customer)
+db_utils.customers_table_select()
+display_all_customers()
+
+print("-----------Данные о счетах клиентов-----------")
+for account in (db_utils.accounts_table_select()):
+  print(account)
 
 print("----------Данные о категориях кэшбэка----------")
-for cashback_category in (db_utils.cashback_categories_table_select()):
-  print(cashback_category)
+db_utils.cashback_categories_table_select()
+display_all_сashback_categories()
 
 print("---------Данные о бонусных программах----------")
-for reward_program in (db_utils.reward_programs_table_select()):
-  print(reward_program)
+db_utils.reward_programs_table_select()
+display_all_reward_programs()
 
 db_utils.disconnect()
 
