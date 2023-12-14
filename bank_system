@@ -63,6 +63,7 @@ class DB_Utils:
     self.connection.commit()
     print("Таблица Accounts успешно создана")
 
+  # Создание таблицы для бонусных программ
   def reward_programs_table_create(self):
     cursor = self.connection.cursor()
     cursor.execute('''
@@ -74,6 +75,23 @@ class DB_Utils:
     ''')
     self.connection.commit()
     print("Таблица Reward_programs успешно создана")
+
+  # Вставка данных о бонусных программах для клиентов
+  def reward_programs_table_insert(self):
+    cursor = self.connection.cursor()
+    cursor.execute('INSERT INTO Reward_programs (id, name, code, cashback_category_id) VALUES (?, ?, ?, ?)', (1,'Бонусы для автолюбителя','RA-TA-TA',3))
+    cursor.execute('INSERT INTO Reward_programs (id, name, code, cashback_category_id) VALUES (?, ?, ?, ?)', (2,'Подарок на Новый Год!','SANTA',7))
+    cursor.execute('INSERT INTO Reward_programs (id, name, code, cashback_category_id) VALUES (?, ?, ?, ?)', (3,'Подарок на день рождения!','PET_OWNER',2))
+    cursor.execute('INSERT INTO Reward_programs (id, name, code, cashback_category_id) VALUES (?, ?, ?, ?)', (4,'C 8 марта','FASTFOOD_NYAM_NYAM',6))
+    self.connection.commit()
+    print("Таблица Reward_programs успешно заполнена данными")
+
+  # Запросить данные о бонусных программах банка из БД
+  def reward_programs_table_select(self):
+    cursor = self.connection.cursor()
+    cursor.execute('SELECT * FROM Reward_programs')
+    reward_programs = cursor.fetchall()
+    return reward_programs
 
   def cashback_categories_table_create(self):
     cursor = self.connection.cursor()
@@ -88,17 +106,25 @@ class DB_Utils:
     self.connection.commit()
     print("Таблица Cashback_categories успешно создана")
 
+  # заполнение таблицы с категориями кэшбэка
   def cashback_categories_table_insert(self):
     cursor = self.connection.cursor()
-    cursor.execute('INSERT INTO Cashback_categories (id, name, code, value) VALUES (?, ?, ?, ?)', (1,'Все покупки','ALL',1,'Кэшбэк на все покупки вне категорий'))
-    cursor.execute('INSERT INTO Cashback_categories (id, name, code, value) VALUES (?, ?, ?, ?)', (2,'Животные','PET',5,'Покупка зоотоваров и оплата услуг в вет.клиниках'))
-    cursor.execute('INSERT INTO Cashback_categories (id, name, code, value) VALUES (?, ?, ?, ?)', (3,'Топливо','FUEL',3,'Оплата топлива на заправках'))
-    cursor.execute('INSERT INTO Cashback_categories (id, name, code, value) VALUES (?, ?, ?, ?)', (4,'Спорттовары','SPORT',10,'Покупка в магазинах спорттоваров'))
-    cursor.execute('INSERT INTO Cashback_categories (id, name, code, value) VALUES (?, ?, ?, ?)', (5,'Аптеки','DRUGS',10,'Любые покупки в аптеках'))
-    cursor.execute('INSERT INTO Cashback_categories (id, name, code, value) VALUES (?, ?, ?, ?)', (6,'Фастфуд','FASTFOOD',5,'Покупка еды и напитков в кафе и ресторанах быстрого обслуживания'))
-    cursor.execute('INSERT INTO Cashback_categories (id, name, code, value) VALUES (?, ?, ?, ?)', (7,'Развлечения','FUN',5,'Театры музеи выставки концерты и мастерклассы'))
+    cursor.execute('INSERT INTO Cashback_categories (id, name, code, value, description) VALUES (?, ?, ?, ?, ?)', (1,'Все покупки','ALL',1,'Кэшбэк на все покупки вне категорий'))
+    cursor.execute('INSERT INTO Cashback_categories (id, name, code, value, description) VALUES (?, ?, ?, ?, ?)', (2,'Животные','PET',5,'Покупка зоотоваров и оплата услуг в вет.клиниках'))
+    cursor.execute('INSERT INTO Cashback_categories (id, name, code, value, description) VALUES (?, ?, ?, ?, ?)', (3,'Топливо','FUEL',3,'Оплата топлива на заправках'))
+    cursor.execute('INSERT INTO Cashback_categories (id, name, code, value, description) VALUES (?, ?, ?, ?, ?)', (4,'Спорттовары','SPORT',10,'Покупка в магазинах спорттоваров'))
+    cursor.execute('INSERT INTO Cashback_categories (id, name, code, value, description) VALUES (?, ?, ?, ?, ?)', (5,'Аптеки','DRUGS',10,'Любые покупки в аптеках'))
+    cursor.execute('INSERT INTO Cashback_categories (id, name, code, value, description) VALUES (?, ?, ?, ?, ?)', (6,'Фастфуд','FASTFOOD',5,'Покупка еды и напитков в кафе и ресторанах быстрого обслуживания'))
+    cursor.execute('INSERT INTO Cashback_categories (id, name, code, value, description) VALUES (?, ?, ?, ?, ?)', (7,'Развлечения','FUN',5,'Театры музеи выставки концерты и мастерклассы'))
     self.connection.commit()
     print("Таблица Cashback_categories успешно заполнена данными")
+
+  # Запросить данные о категориях кэшбэка банка из БД
+  def cashback_categories_table_select(self):
+    cursor = self.connection.cursor()
+    cursor.execute('SELECT * FROM Cashback_categories')
+    сashback_categories = cursor.fetchall()
+    return сashback_categories
 
 # Класс "Клиент банка"
 class Customer:
@@ -193,15 +219,31 @@ def display_account_by_currency(currency):
 
 db_utils = DB_Utils()
 db_utils.connect()
+
+# Создание таблиц
 db_utils.customers_table_create()
 db_utils.accounts_table_create()
 db_utils.cashback_categories_table_create()
 db_utils.reward_programs_table_create()
-# db_utils.customers_table_insert()
+
+# Заполнение таблиц
+db_utils.customers_table_insert()
 db_utils.cashback_categories_table_insert()
-customers_from_db = db_utils.customers_table_select()
-for customer in customers_from_db:
+db_utils.reward_programs_table_insert()
+
+# Вывод данных на экран
+print("------------Данные о клиентах банка------------")
+for customer in (db_utils.customers_table_select()):
   print(customer)
+
+print("----------Данные о категориях кэшбэка----------")
+for cashback_category in (db_utils.cashback_categories_table_select()):
+  print(cashback_category)
+
+print("---------Данные о бонусных программах----------")
+for reward_program in (db_utils.reward_programs_table_select()):
+  print(reward_program)
+
 db_utils.disconnect()
 
 
